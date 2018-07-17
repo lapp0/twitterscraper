@@ -104,7 +104,7 @@ def query_single_page(url, html_response=True, retry=10):
     return [], None
 
 
-def query_tweets_once_generator(query, limit=None, lang=''):
+def query_tweets_once_generator(query, limit=None, lang='', num_new_tweet_retries=10):
     """
     Queries twitter for all the tweets you want! It will load all pages it gets
     from twitter. However, twitter might out of a sudden stop serving new pages,
@@ -118,6 +118,8 @@ def query_tweets_once_generator(query, limit=None, lang=''):
     :param limit: Scraping will be stopped when at least ``limit`` number of
                   items are fetched.
     :param num_tweets: Number of tweets fetched outside this function.
+    :param num_new_tweet_retries: Number of times to retry getting new tweets
+                  if 0 new tweets are returned
     :return:      A list of twitterscraper.Tweet objects. You will get at least
                   ``limit`` number of items.
     """
@@ -133,16 +135,23 @@ def query_tweets_once_generator(query, limit=None, lang=''):
                 pos is None
             )
             if len(new_tweets) == 0:
-                print('HERE.0')
-                new_tweets_2, pos_2 = query_single_page(
-                    INIT_URL.format(q=query, lang=lang) if pos is None
-                    else RELOAD_URL.format(q=query, pos=pos, lang=lang),
-                    pos is None
-                )
-                ForkedPdb().set_trace()
-                logger.info('Got {} tweets for {}.'.format(
-                    num_tweets, query))
-                return
+                for i in range(num_new_tweet_retries):
+                    logger.debug(
+                        'No new tweets for query {}, pos {}, attempt {}'\
+                        .format(query, pos, attempt)
+                    )
+                    new_tweets, pos = query_single_page(
+                        INIT_URL.format(q=query, lang=lang) if pos is None
+                        else RELOAD_URL.format(q=query, pos=pos, lang=lang),
+                        pos is None
+                    )
+                    if new_tweets:
+                        break
+                else:
+                    ForkedPdb().set_trace()
+                    logger.info('Got {} tweets for {}.'.format(
+                        num_tweets, query))
+                    return
 
             for t in new_tweets:
                 yield t, pos
