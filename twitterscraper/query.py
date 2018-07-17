@@ -9,6 +9,7 @@ from multiprocessing.pool import Pool
 from twitterscraper.tweet import Tweet
 from twitterscraper.ts_logger import logger
 
+
 HEADERS_LIST = [
     'Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13',
     'Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
@@ -16,23 +17,9 @@ HEADERS_LIST = [
     'Opera/9.80 (X11; Linux i686; Ubuntu/14.10) Presto/2.12.388 Version/12.16',
     'Mozilla/5.0 (Windows NT 5.2; RW; rv:7.0a1) Gecko/20091211 SeaMonkey/9.23a1pre'
 ]
+DEFAULT_HEADERS = {'User-Agent': random.choice(HEADERS_LIST)}
+logger.debug('default_headers are: {}'.format(DEFAULT_HEADERS))
 
-HEADER = {'User-Agent': random.choice(HEADERS_LIST)}
-print(HEADER)
-
-INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
-RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
-             'default&include_available_features=1&include_entities=1&' \
-             'reset_error_state=false&max_position={pos}&q={q}&l={lang}'
-
-
-def linspace(start, stop, n):
-    if n == 1:
-        yield stop
-        return
-    h = (stop - start) / (n - 1)
-    for i in range(n):
-        yield start + h * i
 
 
 import sys
@@ -52,7 +39,48 @@ class ForkedPdb(pdb.Pdb):
             sys.stdin = _stdin
 
 
-def query_single_page(url, html_response=True, retry=10):
+
+def linspace(start, stop, n):
+    if n == 1:
+        yield stop
+        return
+    h = (stop - start) / (n - 1)
+    for i in range(n):
+        yield start + h * i
+
+
+def init_request(query, lang, headers=DEFAULT_HEADERS):
+    params = {
+        'f': 'tweets',
+        'l': lang,
+        'q': query,
+    }
+    return requests.get(
+        'https://twitter.com/search',
+        params=params,
+        headers=headers,
+    )
+
+
+def continue_request(query, lang, pos, headers=DEFAULT_HEADERS):
+    params = {
+        'f': 'tweets',
+        'vertical': 'default',
+        'include_available_features': 1,
+        'include_entities': 1,
+        'reset_error_state': False,
+        'q': query,
+        'l': lang,
+        'max_position': pos,
+    }
+    return requests.get(
+        'https://twitter.com/i/search/timeline',
+        params=params,
+        headers=headers,
+    )
+
+
+def handle_single_page(response, html_response=True, retry=10):
     """
     Returns tweets from the given URL.
 
@@ -64,7 +92,7 @@ def query_single_page(url, html_response=True, retry=10):
 
     try:
         response = requests.get(url, headers=HEADER)
-        logger.debug('response text: {}'.format(response.text))
+        logger.debug('url: {}, headers: {}'.format(url, DEFAULT_HEADERS))
         if html_response:
             html = response.text or ''
         else:
@@ -131,15 +159,14 @@ def query_tweets_once_generator(query, limit=None, lang='', num_new_tweet_retrie
     try:
         while True:
             if pos is None:
-                query_url = INIT_URL.format(q=query, lang=lang)
+                response = init_request(query=query, lang=lang)
             else:
-                query_url = RELOAD_URL.format(q=query, pos=pos, lang=lang)
+                response = continue_request(query=query, lang=lang, pos=pos)
 
-            logger.debug('querying {}'.format(query_url))
-            new_tweets, pos = query_single_page(
-                query_url,
-                pos is None
-            )
+            print('here')
+            ForkedPdb().set_trace()
+
+            new_tweets, pos = handle_single_page(response, pos is None)
             logger.debug(
                 'num new_tweets: {}, pos: {}, ids: {}'.
                 format(len(new_tweets), pos, [t.id for t in new_tweets])
