@@ -23,7 +23,7 @@ print(HEADER)
 INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
 RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
              'default&include_available_features=1&include_entities=1&' \
-             'reset_error_state=false&src=typd&max_position={pos}&q={q}&l={lang}'
+             'reset_error_state=false&max_position={pos}&q={q}&l={lang}'
 
 
 def linspace(start, stop, n):
