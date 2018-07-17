@@ -129,7 +129,7 @@ def query_tweets_once_generator(query, limit=None, lang='', num_new_tweet_retrie
     num_tweets = 0
     try:
         while True:
-            new_tweets, pos = query_single_page(
+            new_tweets, new_pos = query_single_page(
                 INIT_URL.format(q=query, lang=lang) if pos is None
                 else RELOAD_URL.format(q=query, pos=pos, lang=lang),
                 pos is None
@@ -140,7 +140,7 @@ def query_tweets_once_generator(query, limit=None, lang='', num_new_tweet_retrie
                         'No new tweets for query {}, pos {}, attempt #{}'\
                         .format(query, pos, i)
                     )
-                    new_tweets, pos = query_single_page(
+                    new_tweets, new_pos = query_single_page(
                         INIT_URL.format(q=query, lang=lang) if pos is None
                         else RELOAD_URL.format(q=query, pos=pos, lang=lang),
                         pos is None
@@ -156,6 +156,8 @@ def query_tweets_once_generator(query, limit=None, lang='', num_new_tweet_retrie
                     logger.info('Got {} tweets for {}.'.format(
                         num_tweets, query))
                     return
+
+            pos = new_pos
 
             for t in new_tweets:
                 yield t, pos
