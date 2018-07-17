@@ -137,8 +137,8 @@ def query_tweets_once_generator(query, limit=None, lang='', num_new_tweet_retrie
             if len(new_tweets) == 0:
                 for i in range(num_new_tweet_retries):
                     logger.debug(
-                        'No new tweets for query {}, pos {}, attempt {}'\
-                        .format(query, pos, attempt)
+                        'No new tweets for query {}, pos {}, attempt #{}'\
+                        .format(query, pos, i)
                     )
                     new_tweets, pos = query_single_page(
                         INIT_URL.format(q=query, lang=lang) if pos is None
