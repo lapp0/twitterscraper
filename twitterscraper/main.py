@@ -55,7 +55,7 @@ def main():
                                  "processes depending on the computational power you have.")
         parser.add_argument("-c", "--csv", action='store_true',
                                 help="Set this flag if you want to save the results to a CSV format.")
-        parser.add_argument("--lang", type=str, default=None,
+        parser.add_argument("--lang", type=str, default='',
                             help="Set this flag if you want to query tweets in \na specific language. You can choose from:\n"
                                  "en (English)\nar (Arabic)\nbn (Bengali)\n"
                                  "cs (Czech)\nda (Danish)\nde (German)\nel (Greek)\nes (Spanish)\n"

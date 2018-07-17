@@ -20,10 +20,10 @@ HEADERS_LIST = [
 HEADER = {'User-Agent': random.choice(HEADERS_LIST)}
 print(HEADER)
 
-INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}'
+INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
 RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
              'default&include_available_features=1&include_entities=1&' \
-             'reset_error_state=false&src=typd&max_position={pos}&q={q}'
+             'reset_error_state=false&src=typd&max_position={pos}&q={q}&l={lang}'
 
 
 def linspace(start, stop, n):
@@ -130,9 +130,9 @@ def query_tweets_once_generator(query, limit=None, lang='', num_new_tweet_retrie
     try:
         while True:
             if pos is None:
-                query_url = INIT_URL.format(q=query)#, lang=lang)
+                query_url = INIT_URL.format(q=query, lang=lang)
             else:
-                query_url = RELOAD_URL.format(q=query, pos=pos)#, lang=lang)
+                query_url = RELOAD_URL.format(q=query, pos=pos, lang=lang)
 
             logger.debug('querying {}'.format(query_url))
             new_tweets, pos = query_single_page(
