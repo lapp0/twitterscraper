@@ -34,6 +34,23 @@ def linspace(start, stop, n):
         yield start + h * i
 
 
+import sys
+import pdb
+
+class ForkedPdb(pdb.Pdb):
+    """A Pdb subclass that may be used
+    from a forked multiprocessing child
+
+    """
+    def interaction(self, *args, **kwargs):
+        _stdin = sys.stdin
+        try:
+            sys.stdin = open('/dev/stdin')
+            pdb.Pdb.interaction(self, *args, **kwargs)
+        finally:
+            sys.stdin = _stdin
+
+
 def query_single_page(url, html_response=True, retry=10):
     """
     Returns tweets from the given URL.
@@ -115,6 +132,8 @@ def query_tweets_once_generator(query, limit=None, lang=''):
                 pos is None
             )
             if len(new_tweets) == 0:
+                print('HERE.0')
+                ForkedPdb().set_trace()
                 logger.info('Got {} tweets for {}.'.format(
                     num_tweets, query))
                 return
@@ -125,6 +144,8 @@ def query_tweets_once_generator(query, limit=None, lang=''):
             num_tweets += len(new_tweets)
 
             if limit and num_tweets >= limit:
+                print('HERE.1')
+                ForkedPdb().set_trace()
                 logger.info('Got {} tweets for {}.'.format(
                     num_tweets, query))
                 return
