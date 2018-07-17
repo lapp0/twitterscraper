@@ -133,6 +133,11 @@ def query_tweets_once_generator(query, limit=None, lang=''):
             )
             if len(new_tweets) == 0:
                 print('HERE.0')
+                new_tweets_2, pos_2 = query_single_page(
+                    INIT_URL.format(q=query, lang=lang) if pos is None
+                    else RELOAD_URL.format(q=query, pos=pos, lang=lang),
+                    pos is None
+                )
                 ForkedPdb().set_trace()
                 logger.info('Got {} tweets for {}.'.format(
                     num_tweets, query))
