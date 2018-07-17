@@ -139,7 +139,10 @@ def query_tweets_once_generator(query, limit=None, lang='', num_new_tweet_retrie
                 query_url,
                 pos is None
             )
-            logger.debug('num new_tweets {}, pos {}'.format(len(new_tweets), pos))
+            logger.debug(
+                'num new_tweets: {}, pos: {}, ids: {}'.
+                format(len(new_tweets), pos, [t.id for t in new_tweets])
+            )
             if len(new_tweets) == 0:
                 for i in range(num_new_tweet_retries):
                     logger.debug(
