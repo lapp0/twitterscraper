@@ -146,6 +146,10 @@ def query_tweets_once_generator(query, limit=None, lang='', num_new_tweet_retrie
                         pos is None
                     )
                     if new_tweets:
+                        logger.debug(
+                            'Found new {} tweets for query {}, pos {}, on attempt #{}'\
+                            .format(len(new_tweets), query, pos, i)
+                        )
                         break
                 else:
                     ForkedPdb().set_trace()
