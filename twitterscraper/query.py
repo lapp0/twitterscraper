@@ -50,6 +50,7 @@ def linspace(start, stop, n):
 
 
 def init_request(query, lang, headers=DEFAULT_HEADERS):
+    logger.debug('query: {}, lang: {}, headers: {}'.format(query, lang, DEFAULT_HEADERS))
     params = {
         'f': 'tweets',
         'l': lang,
@@ -63,6 +64,7 @@ def init_request(query, lang, headers=DEFAULT_HEADERS):
 
 
 def continue_request(query, lang, pos, headers=DEFAULT_HEADERS):
+    logger.debug('query: {}, lang: {}, pos: {}, headers: {}'.format(query, lang, pos, DEFAULT_HEADERS))
     params = {
         'f': 'tweets',
         'vertical': 'default',
@@ -91,8 +93,6 @@ def handle_single_page(response, html_response=True, retry=10):
     """
 
     try:
-        response = requests.get(url, headers=HEADER)
-        logger.debug('url: {}, headers: {}'.format(url, DEFAULT_HEADERS))
         if html_response:
             html = response.text or ''
         else:
@@ -101,7 +101,7 @@ def handle_single_page(response, html_response=True, retry=10):
                 json_resp = json.loads(response.text)
                 html = json_resp['items_html'] or ''
             except ValueError as e:
-                logger.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, url))
+                logger.exception('Failed to parse JSON "{}" while requesting "{}"'.format(e, response.request.url))
 
         tweets = list(Tweet.from_html(html))
 
@@ -114,16 +114,16 @@ def handle_single_page(response, html_response=True, retry=10):
         return tweets, 'TWEET-{}-{}'.format(tweets[-1].id, tweets[0].id)
     except requests.exceptions.HTTPError as e:
         logger.exception('HTTPError {} while requesting "{}"'.format(
-            e, url))
+            e, response.request.url))
     except requests.exceptions.ConnectionError as e:
         logger.exception('ConnectionError {} while requesting "{}"'.format(
-            e, url))
+            e, response.request.url))
     except requests.exceptions.Timeout as e:
         logger.exception('TimeOut {} while requesting "{}"'.format(
-            e, url))
+            e, response.request.url))
     except json.decoder.JSONDecodeError as e:
         logger.exception('Failed to parse JSON "{}" while requesting "{}".'.format(
-            e, url))
+            e, response.request.url))
 
     if retry > 0:
         logger.info('Retrying... (Attempts left: {})'.format(retry))
