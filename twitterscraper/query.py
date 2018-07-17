@@ -18,8 +18,6 @@ HEADERS_LIST = [
 ]
 
 HEADER = {'User-Agent': random.choice(HEADERS_LIST)}
-
-HEADER = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'}
 print(HEADER)
 
 INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
@@ -66,6 +64,7 @@ def query_single_page(url, html_response=True, retry=10):
 
     try:
         response = requests.get(url, headers=HEADER)
+        logger.debug('response text: {}'.format(response.text))
         if html_response:
             html = response.text or ''
         else:
