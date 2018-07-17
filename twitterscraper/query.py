@@ -79,12 +79,7 @@ def query_single_page(url, html_response=True, retry=10):
         tweets = list(Tweet.from_html(html))
 
         if not tweets:
-            if html_response:
-                logger.debug('html: {}'.format(html))
-                pos = None
-            else:
-                pos = json_resp['min_position']
-            return [], pos
+            return [], None
 
         if not html_response:
             return tweets, json_resp['min_position']
