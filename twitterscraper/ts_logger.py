@@ -8,5 +8,5 @@ handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-level = logging.INFO
+level = logging.DEBUG
 logger.setLevel(level)
