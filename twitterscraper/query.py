@@ -17,7 +17,7 @@ HEADERS_LIST = [
     'Mozilla/5.0 (Windows NT 5.2; RW; rv:7.0a1) Gecko/20091211 SeaMonkey/9.23a1pre'
 ]
 
-HEADER = {'User-Agent': random.choice(HEADERS_LIST)}
+HEADER = {'User-Agent': ''}
 
 INIT_URL = 'https://twitter.com/search?f=tweets&vertical=default&q={q}&l={lang}'
 RELOAD_URL = 'https://twitter.com/i/search/timeline?f=tweets&vertical=' \
